@@ -47,7 +47,7 @@ ingredients_list = st.multiselect(
 # new section to display smoothiefroot nutrition info
 import requests
 smoothiefroot_response = requests.get("https://my.smoothiefroot.com/api/fruit/watermelon") 
-st.text(smoothiefroot_response)
+st.text(smoothiefroot_response.json())
 
 # notice the ugly brackets if no ingredients are chosen, we can fix with an IF block
 if ingredients_list:
