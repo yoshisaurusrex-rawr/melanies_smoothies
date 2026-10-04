@@ -12,8 +12,28 @@ st.write(
 name_on_order = st.text_input('Name on Smoothie:')
 st.write('The name on your smoothie will be:', name_on_order)
 
-cnx = st.connection("snowflake")
-session = cnx.session
+from cryptography.hazmat.primitives import serialization
+
+private_key_pem = st.secrets["connections"]["snowflake"]["private_key_pem"].encode()
+p_key = serialization.load_pem_private_key(private_key_pem, password=None)
+pkb = p_key.private_bytes(
+    encoding=serialization.Encoding.DER,
+    format=serialization.PrivateFormat.PKCS8,
+    encryption_algorithm=serialization.NoEncryption()
+)
+
+conn = st.connection(
+    "snowflake",
+    account=st.secrets["connections"]["snowflake"]["account"],
+    user=st.secrets["connections"]["snowflake"]["user"],
+    private_key=pkb,
+    role=st.secrets["connections"]["snowflake"]["role"],
+    warehouse=st.secrets["connections"]["snowflake"]["warehouse"],
+    database=st.secrets["connections"]["snowflake"]["database"],
+    schema=st.secrets["connections"]["snowflake"]["schema"],
+)
+session = conn.session
+
 my_dataframe = session.table("smoothies.public.fruit_options").select(col('FRUIT_NAME'))
 
 # adding multi-select
