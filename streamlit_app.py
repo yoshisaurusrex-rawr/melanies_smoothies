@@ -32,7 +32,7 @@ conn = st.connection(
     database=st.secrets["connections"]["snowflake"]["database"],
     schema=st.secrets["connections"]["snowflake"]["schema"],
 )
-session = conn.session
+session = conn.session()
 
 my_dataframe = session.table("smoothies.public.fruit_options").select(col('FRUIT_NAME'))
 
