@@ -1,6 +1,5 @@
 # Import python packages
 import streamlit as st
-from snowflake.snowpark.context import get_active_session
 from snowflake.snowpark.functions import col
 
 # Write directly to the app
@@ -14,8 +13,9 @@ name_on_order = st.text_input('Name on Smoothie:')
 st.write('The name on your smoothie will be:', name_on_order)
 
 session = get_active_session()
+cnx = st.connection("snowflake")
+session = cnx.session
 my_dataframe = session.table("smoothies.public.fruit_options").select(col('FRUIT_NAME'))
-#st.dataframe(data=my_dataframe, use_container_width=True), can be re-added to inspect DF
 
 # adding multi-select
 # selections are stored in a var called `ingredients`, it's an object called LIST
@@ -25,10 +25,6 @@ ingredients_list = st.multiselect(
     max_selections = 6
 )
 
-# display the list
-# st.write(ingredients_list)
-# st.text(ingredients_list)
-
 # notice the ugly brackets if no ingredients are chosen, we can fix with an IF block
 if ingredients_list:
 
@@ -36,8 +32,6 @@ if ingredients_list:
 
     for fruit_chosen in ingredients_list:
         ingredients_string += fruit_chosen + ' '# += means add this to what's already in the var
-
-    #st.write(ingredients_string)
 
     my_insert_stmt = """ insert into smoothies.public.orders(ingredients, name_on_order)
                         values ('""" + ingredients_string + """', '"""+name_on_order+"""')"""
